@@ -1,5 +1,6 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const startBtn = document.querySelector('[data-start]');
 const timer = {
@@ -9,6 +10,7 @@ const timer = {
   seconds: document.querySelector('[data-seconds]'),
 };
 let selectedDate = null;
+let timerId = null;
 
 startBtn.setAttribute('disabled', 'disabled');
 
@@ -18,10 +20,9 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    // console.log(selectedDates[0]);
     const date = new Date();
     if (selectedDates[0] <= date) {
-      window.alert('Please choose a date in the future');
+      Notify.failure('Please choose a date in the future');
     } else {
       startBtn.removeAttribute('disabled', 'disabled');
       selectedDate = selectedDates;
@@ -33,6 +34,9 @@ flatpickr('#datetime-picker', options);
 
 startBtn.addEventListener('click', onBtnStartClick);
 
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
 function convertMs(ms) {
   // Number of milliseconds per unit of time
   const second = 1000;
@@ -41,23 +45,37 @@ function convertMs(ms) {
   const day = hour * 24;
 
   // Remaining days
-  const days = Math.floor(ms / day);
+  const days = addLeadingZero(Math.floor(ms / day));
   // Remaining hours
-  const hours = Math.floor((ms % day) / hour);
+  const hours = addLeadingZero(Math.floor((ms % day) / hour));
   // Remaining minutes
-  const minutes = Math.floor(((ms % day) % hour) / minute);
+  const minutes = addLeadingZero(Math.floor(((ms % day) % hour) / minute));
   // Remaining seconds
-  const seconds = Math.floor((((ms % day) % hour) % minute) / second);
+  const seconds = addLeadingZero(
+    Math.floor((((ms % day) % hour) % minute) / second)
+  );
 
   return { days, hours, minutes, seconds };
 }
 
-console.log(convertMs(200000)); // {days: 0, hours: 0, minutes: 0, seconds: 2}
-console.log(convertMs(140000)); // {days: 0, hours: 0, minutes: 2, seconds: 20}
-console.log(convertMs(44324140000)); // {days: 0, hours: 6 minutes: 42, seconds: 20}
-
 function onBtnStartClick() {
+  timerId = setInterval(updateInterface, 1000);
   const date = new Date();
-  const dataTimer = selectedDate[0] - date;
-  console.log(convertMs(dataTimer));
+  dataTimer = selectedDate[0] - date;
+  setTimeout(endTime, dataTimer);
+}
+
+function updateInterface() {
+  const date = new Date();
+  dataTimer = selectedDate[0] - date;
+  const { days, hours, minutes, seconds } = convertMs(dataTimer);
+  timer.days.textContent = days;
+  timer.hours.textContent = hours;
+  timer.minutes.textContent = minutes;
+  timer.seconds.textContent = seconds;
+}
+
+function endTime() {
+  clearInterval(timerId);
+  Notify.success('Time is over!');
 }
