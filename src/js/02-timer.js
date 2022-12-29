@@ -61,13 +61,13 @@ function convertMs(ms) {
 function onBtnStartClick() {
   timerId = setInterval(updateInterface, 1000);
   const date = new Date();
-  dataTimer = selectedDate[0] - date;
+  const dataTimer = selectedDate[0] - date;
   setTimeout(endTime, dataTimer);
 }
 
 function updateInterface() {
   const date = new Date();
-  dataTimer = selectedDate[0] - date;
+  const dataTimer = selectedDate[0] - date;
   const { days, hours, minutes, seconds } = convertMs(dataTimer);
   timer.days.textContent = days;
   timer.hours.textContent = hours;
