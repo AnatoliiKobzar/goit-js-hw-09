@@ -3,6 +3,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 const startBtn = document.querySelector('[data-start]');
+const input = document.querySelector('#datetime-picker');
 const timer = {
   days: document.querySelector('[data-days]'),
   hours: document.querySelector('[data-hours]'),
@@ -12,7 +13,7 @@ const timer = {
 let selectedDate = null;
 let timerId = null;
 
-startBtn.setAttribute('disabled', 'disabled');
+startBtn.setAttribute('disabled', 'true');
 
 const options = {
   enableTime: true,
@@ -24,7 +25,7 @@ const options = {
     if (selectedDates[0] <= date) {
       Notify.failure('Please choose a date in the future');
     } else {
-      startBtn.removeAttribute('disabled', 'disabled');
+      startBtn.removeAttribute('disabled');
       selectedDate = selectedDates;
     }
   },
@@ -60,14 +61,16 @@ function convertMs(ms) {
 
 function onBtnStartClick() {
   timerId = setInterval(updateInterface, 1000);
-  const date = new Date();
-  const dataTimer = selectedDate[0] - date;
-  setTimeout(endTime, dataTimer);
+  startBtn.setAttribute('disabled', 'true');
+  input.setAttribute('disabled', 'true');
 }
 
 function updateInterface() {
   const date = new Date();
   const dataTimer = selectedDate[0] - date;
+  if (dataTimer < 1000) {
+    endTime();
+  }
   const { days, hours, minutes, seconds } = convertMs(dataTimer);
   timer.days.textContent = days;
   timer.hours.textContent = hours;

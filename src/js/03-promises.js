@@ -10,21 +10,21 @@ function onFirmSubmit(event) {
   const step = Number(formElements.step.value);
   const amount = Number(formElements.amount.value);
   for (let i = 1; i <= amount; i += 1) {
-    createPromise(i, delay);
+    createPromise(i, delay)
+      .then(x => Notify.success(x))
+      .catch(y => Notify.failure(y));
     delay += step;
   }
 }
 
 function createPromise(position, delay) {
   const shouldResolve = Math.random() > 0.3;
-  const promise = new Promise(() => {
+  const promise = new Promise((Fulfill, Reject) => {
     setTimeout(() => {
       if (shouldResolve) {
-        // Fulfill
-        Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+        Fulfill(`✅ Fulfilled promise ${position} in ${delay}ms`);
       } else {
-        // Reject
-        Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+        Reject(`❌ Rejected promise ${position} in ${delay}ms`);
       }
     }, delay);
   });
